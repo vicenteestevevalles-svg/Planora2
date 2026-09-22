@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#d8d4c5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Planora">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Planora — Organizador</title>
+<style>
+:root{
+  --bg:#f5f7fb;--surface:#fff;--surface2:#eef2f7;--text:#172033;--muted:#697386;
+  --primary:#5b5ce2;--primary2:#4748c7;--border:#e3e7ef;--danger:#d94a5b;--success:#278a62;
+  --warning:#c47b16;--shadow:0 10px 30px rgba(31,42,68,.08);--radius:18px;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select,textarea{font:inherit} button{cursor:pointer}
+.app{display:flex;min-height:100vh}.sidebar{width:250px;background:var(--surface);border-right:1px solid var(--border);padding:22px 14px;position:fixed;inset:0 auto 0 0;z-index:10}
+.brand{font-size:22px;font-weight:800;padding:6px 12px 22px}.brand span{color:var(--primary)}
+.nav button{width:100%;border:0;background:none;text-align:left;padding:12px 14px;border-radius:12px;color:var(--muted);margin:2px 0}
+.nav button.active,.nav button:hover{background:var(--surface2);color:var(--primary);font-weight:700}
+.main{margin-left:250px;width:calc(100% - 250px);padding:28px;max-width:1600px}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}
+h1{font-size:30px;margin:0 0 5px}.subtitle{color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}.btn.danger{color:var(--danger)}
+.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.two{grid-template-columns:1.3fr .7fr}.three{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card h2{font-size:17px;margin:0 0 14px}.stat .label{color:var(--muted);font-size:13px}.stat .value{font-size:27px;font-weight:800;margin-top:5px}.stat .small{color:var(--muted);font-size:12px}
+.list{display:flex;flex-direction:column;gap:9px}.item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:13px;background:var(--surface)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}.grow{flex:1}.muted{color:var(--muted)}.small{font-size:12px}.badge{padding:4px 8px;border-radius:999px;background:var(--surface2);font-size:11px;font-weight:700}
+.progress{height:9px;background:var(--surface2);border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:var(--primary);border-radius:99px}
+.section{display:none}.section.active{display:block}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+input,select,textarea{width:100%;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:10px 11px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}textarea{min-height:90px;resize:vertical}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.formgrid .full{grid-column:1/-1}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--muted)}
+.modal{position:fixed;inset:0;background:rgba(10,18,35,.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}.modal.show{display:flex}.modalbox{background:var(--surface);width:min(680px,100%);max-height:90vh;overflow:auto;border-radius:20px;padding:22px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.close{border:0;background:var(--surface2);border-radius:10px;width:36px;height:36px}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--border);font-size:13px}th{color:var(--muted)}
+.calendar{overflow:auto}.calgrid{display:grid;grid-template-columns:70px repeat(7,minmax(120px,1fr));min-width:900px}.calhead{padding:10px;text-align:center;font-weight:800;border-bottom:1px solid var(--border)}.time{padding:10px;color:var(--muted);font-size:11px;border-right:1px solid var(--border);min-height:64px}.cell{min-height:64px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:4px}
+.event{padding:6px;border-radius:8px;font-size:11px;margin:3px 0;font-weight:700;overflow:hidden}.event.study{background:#e7e6ff}.event.class{background:#e5f4ed}.event.activity{background:#fff0d8}.event.exam{background:#ffe3e6}.event.task{background:#e7efff}
+.weeknav{display:flex;gap:8px;align-items:center}.weeknav strong{min-width:180px;text-align:center}
+.pillbar{display:flex;gap:7px;flex-wrap:wrap}.pill{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:7px 11px;font-size:12px}.pill.active{background:var(--primary);color:white;border-color:var(--primary)}
+.empty{text-align:center;padding:28px;color:var(--muted)}.check{width:19px;height:19px}.actions-mini{display:flex;gap:5px}.iconbtn{border:0;background:var(--surface2);border-radius:8px;padding:7px}.priority-urgent{color:#b72e40}.priority-high{color:#c16b14}.priority-medium{color:#777}.priority-low{color:#5d7a66}
+.toast{position:fixed;right:20px;bottom:20px;background:#172033;color:#fff;padding:12px 16px;border-radius:12px;display:none;z-index:80}.toast.show{display:block}
+.mobile-nav{display:none}
+body.dark{--bg:#101522;--surface:#171d2b;--surface2:#222a3a;--text:#edf1f7;--muted:#9ca7ba;--border:#30394b;--shadow:0 10px 30px rgba(0,0,0,.22)}
+@media(max-width:950px){.stats{grid-template-columns:repeat(2,1fr)}.two,.three{grid-template-columns:1fr}.sidebar{display:none}.main{margin:0;width:100%;padding:20px 16px 85px}.mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:20;justify-content:space-around;padding:7px}.mobile-nav button{border:0;background:none;color:var(--muted);font-size:11px}.mobile-nav button.active{color:var(--primary);font-weight:800}}
+@media(max-width:600px){.topbar{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}.card{padding:14px}h1{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">Plan<span>ora</span> 📚</div>
+  <nav class="nav" id="nav"></nav>
+</aside>
+<main class="main">
+  <div id="sections"></div>
+</main>
+</div>
+<nav class="mobile-nav" id="mobileNav"></nav>
+<div class="modal" id="modal"><div class="modalbox"><div class="modalhead"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='studyflow_v1';
+const defaults={
+  settings:{name:'',dark:false,pomodoro:25,weeklyGoal:10,notifications:true},
+  subjects:[],tasks:[],exams:[],sessions:[],activities:[],events:[],goals:[],classes:[],
+  availability:{1:[['16:00','20:00']],2:[['16:00','20:00']],3:[['16:00','20:00']],4:[['16:00','20:00']],5:[['16:00','19:00']],6:[['10:00','14:00']],0:[['10:00','13:00']]},
+  stats:{studyLog:[]}
+};
+let data=load(), current='home', weekOffset=0, taskFilter='all';
+const pages=[
+ ['home','🏠','Inicio'],['calendar','📅','Calendario'],['schedule','⏰','Horario'],['subjects','📚','Asignaturas'],
+ ['tasks','📝','Tareas'],['exams','🎓','Exámenes'],['study','🧠','Estudio'],['activities','🏃','Extraescolares'],
+ ['goals','🎯','Objetivos'],['stats','📊','Estadísticas'],['settings','⚙️','Ajustes']
+];
+function load(){try{return {...structuredClone(defaults),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){return structuredClone(defaults)}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function fmtDate(d){return new Date(d+'T00:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'})}
+function today(){return new Date().toISOString().slice(0,10)}
+function dateObj(s){return new Date(s+'T00:00:00')}
+function daysUntil(s){return Math.ceil((dateObj(s)-dateObj(today()))/86400000)}
+function subject(id){return data.subjects.find(x=>x.id===id)}
+function subName(id){return subject(id)?.name||'Sin asignatura'}
+function minutesBetween(a,b){let [ah,am]=a.split(':').map(Number),[bh,bm]=b.split(':').map(Number);return (bh*60+bm)-(ah*60+am)}
+function weekStart(offset=0){let d=dateObj(today());let day=d.getDay();d.setDate(d.getDate()-((day+6)%7)+offset*7);return d}
+function iso(d){return d.toISOString().slice(0,10)}
+function formatLong(d){return d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}
+function showToast(t){const x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
+function nav(){document.getElementById('nav').innerHTML=pages.map(p=>`<button class="${current===p[0]?'active':''}" onclick="go('${p[0]}')">${p[1]} ${p[2]}</button>`).join('');document.getElementById('mobileNav').innerHTML=pages.slice(0,5).map(p=>`<button class="${current===p[0]?'active':''}" onclick="go('${p[0]}')">${p[1]}<br>${p[2]}</button>`).join('')}
+function go(p){current=p;render()}
+function header(title,sub,buttons=''){return `<div class="topbar"><div><h1>${title}</h1><div class="subtitle">${sub||''}</div></div><div class="actions">${buttons}</div></div>`}
+function btn(label,fn,primary=false){return `<button class="btn ${primary?'primary':''}" onclick="${fn}">${label}</button>`}
+function card(title,body,extra=''){return `<div class="card"><h2>${title}</h2>${body}${extra}</div>`}
+function render(){nav();document.getElementById('sections').innerHTML=pageHtml();applyTheme()}
+function pageHtml(){
+ if(current==='home')return home();
+ if(current==='calendar')return calendar();
+ if(current==='schedule')return schedule();
+ if(current==='subjects')return subjectsPage();
+ if(current==='tasks')return tasksPage();
+ if(current==='exams')return examsPage();
+ if(current==='study')return studyPage();
+ if(current==='activities')return activitiesPage();
+ if(current==='goals')return goalsPage();
+ if(current==='stats')return statsPage();
+ return settingsPage();
+}
+function home(){
+ const t=today(), pending=data.tasks.filter(x=>x.status!=='done'), due=pending.filter(x=>x.due===t), overdue=pending.filter(x=>x.due<t);
+ const todaySessions=data.sessions.filter(x=>x.date===t), planned=todaySessions.reduce((a,x)=>a+minutesBetween(x.start,x.end),0);
+ const done=data.stats.studyLog.filter(x=>x.date===t).reduce((a,x)=>a+x.minutes,0);
+ const upcoming=data.exams.filter(x=>x.date>=t).sort((a,b)=>a.date.localeCompare(b.date))[0];
+ const next=[...todaySessions.map(x=>({...x,type:'study'})),...data.classes.filter(x=>x.day===new Date().getDay()).map(x=>({...x,type:'class'})),...data.activities.filter(x=>x.day===new Date().getDay()).map(x=>({...x,type:'activity'}))].filter(x=>x.start).sort((a,b)=>a.start.localeCompare(b.start))[0];
+ const goals=data.goals.filter(x=>!x.done).slice(0,5);
+ return header(`${greet()}, ${esc(data.settings.name||'estudiante')} 👋`,formatLong(new Date()),btn('✨ Planificar mi día','planDay()',true)+btn('+ Añadir','quickAdd()'))+
+ `<div class="grid stats">
+ ${card('Tareas pendientes',`<div class="stat"><div class="value">${pending.length}</div><div class="small">${due.length} para hoy · ${overdue.length} atrasadas</div></div>`)}
+ ${card('Estudio de hoy',`<div class="stat"><div class="value">${Math.floor(done/60)}h ${done%60}m</div><div class="small">${planned} min planificados</div></div>`)}
+ ${card('Próximo examen',upcoming?`<div class="stat"><div class="value">${daysUntil(upcoming.date)<=0?'Hoy':daysUntil(upcoming.date)+'d'}</div><div class="small">${esc(subName(upcoming.subjectId))} · ${fmtDate(upcoming.date)}</div></div>`:`<div class="stat"><div class="value">—</div><div class="small">No hay exámenes</div></div>`)}
+ ${card('Objetivo semanal',`<div class="stat"><div class="value">${weekMinutes()} / ${data.settings.weeklyGoal*60} min</div><div class="progress"><i style="width:${Math.min(100,weekMinutes()/(data.settings.weeklyGoal*60)*100)}%"></i></div></div>`)}
+ </div>
+ <div class="grid two">
+ ${card('📌 ¿Qué debería hacer ahora?',priorityList())}
+ ${card('🗓️ Próximo evento',next?`<div class="item"><div class="dot" style="background:${next.color||'var(--primary)'}"></div><div class="grow"><b>${esc(next.title||next.name||subName(next.subjectId))}</b><div class="small muted">${next.start} · ${esc(next.type)}</div></div></div>`:`<div class="empty">No hay eventos próximos.</div>`)}
+ </div>
+ <div class="grid two" style="margin-top:16px">
+ ${card('⏰ Horario de hoy',todayTimeline())}
+ ${card('🎯 Objetivos',goals.length?`<div class="list">${goals.map(g=>`<label class="item"><input class="check" type="checkbox" onchange="toggleGoal('${g.id}')" ${g.done?'checked':''}><div class="grow">${esc(g.title)}<div class="small muted">${g.target?g.progress+'/'+g.target:''}</div></div></label>`).join('')}</div>`:`<div class="empty">Añade un objetivo para empezar.</div>`)}
+ </div>`;
+}
+function greet(){let h=new Date().getHours();return h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches'}
+function weekMinutes(){let s=weekStart();let e=new Date(s);e.setDate(e.getDate()+7);return data.stats.studyLog.filter(x=>new Date(x.date+'T00:00')>=s&&new Date(x.date+'T00:00')<e).reduce((a,x)=>a+x.minutes,0)}
+function priorityScore(x){
+ let score=0;if(x.due){let d=daysUntil(x.due);score+=d<0?100:d===0?90:d<=2?75:d<=7?45:15}score+=(x.priority==='urgent'?45:x.priority==='high'?30:x.priority==='medium'?15:5);score+=x.estimated?Math.min(20,x.estimated/10):0;return score
+}
+function priorityList(){let arr=data.tasks.filter(x=>x.status!=='done').map(x=>({...x,score:priorityScore(x)})).sort((a,b)=>b.score-a.score).slice(0,4);return arr.length?`<div class="list">${arr.map(x=>`<div class="item"><div class="grow"><b>${esc(x.title)}</b><div class="small muted">${esc(subName(x.subjectId))} · ${x.due?fmtDate(x.due):'sin fecha'}</div></div><span class="badge ${x.priority==='urgent'?'priority-urgent':''}">${x.priority}</span></div>`).join('')}</div>`:`<div class="empty">🎉 No tienes tareas pendientes.</div>`}
+function todayTimeline(){let day=new Date().getDay();let arr=[...data.classes.filter(x=>x.day===day).map(x=>({...x,label:x.name,type:'class'})),...data.activities.filter(x=>x.day===day).map(x=>({...x,label:x.name,type:'activity'})),...data.sessions.filter(x=>x.date===today()).map(x=>({...x,label:subName(x.subjectId)+': '+x.topic,type:'study'}))].sort((a,b)=>(a.start||'').localeCompare(b.start||''));return arr.length?`<div class="list">${arr.slice(0,8).map(x=>`<div class="item"><span class="badge">${x.start||''}</span><div class="grow"><b>${esc(x.label)}</b><div class="small muted">${x.end||''}</div></div></div>`).join('')}</div>`:`<div class="empty">Nada programado para hoy.</div>`}
+
+function calendar(){
+ let s=weekStart(weekOffset), days=Array.from({length:7},(_,i)=>{let d=new Date(s);d.setDate(s.getDate()+i);return d});
+ let rows='';for(let h=7;h<=22;h++){rows+=`<div class="time">${String(h).padStart(2,'0')}:00</div>`+days.map(d=>`<div class="cell">${eventsForDay(iso(d),h)}</div>`).join('')}
+ return header('Calendario','Vista semanal',`<div class="weeknav">${btn('‹', 'changeWeek(-1)')}<strong>${fmtDate(iso(s))} — ${fmtDate(iso(days[6]))}</strong>${btn('›','changeWeek(1)')}</div>${btn('Hoy','weekOffset=0;render()')} ${btn('+ Evento','quickAdd("event")')}`)+`<div class="card calendar"><div class="calgrid"><div class="calhead">Hora</div>${days.map(d=>`<div class="calhead">${d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric'})}</div>`).join('')}${rows}</div></div>`
+}
+function eventsForDay(date,h){
+ let arr=[...data.sessions.filter(x=>x.date===date&&+x.start.split(':')[0]===h).map(x=>({title:subName(x.subjectId)+' · '+x.topic,type:'study',start:x.start,color:subject(x.subjectId)?.color})),
+ ...data.exams.filter(x=>x.date===date&&(!x.time||+x.time.split(':')[0]===h)).map(x=>({title:'Examen · '+subName(x.subjectId),type:'exam',start:x.time||'',color:'#d94a5b'})),
+ ...data.tasks.filter(x=>x.due===date&&(!x.dueTime||+x.dueTime.split(':')[0]===h)).map(x=>({title:'Tarea · '+x.title,type:'task',start:x.dueTime||'',color:'#5b86d9'})),
+ ...data.events.filter(x=>x.date===date&&(!x.start||+x.start.split(':')[0]===h)).map(x=>({title:x.title,type:x.type||'event',start:x.start||'',color:x.color})),
+ ...data.activities.filter(x=>x.day===new Date(date+'T00:00').getDay()&&+x.start.split(':')[0]===h).map(x=>({title:x.name,type:'activity',start:x.start,color:x.color}))];
+ return arr.map(e=>`<div class="event ${e.type}" style="border-left:3px solid ${e.color||'var(--primary)'}">${esc(e.start)} ${esc(e.title)}</div>`).join('')
+}
+function changeWeek(n){weekOffset+=n;render()}
+function schedule(){
+ let s=weekStart(),days=Array.from({length:7},(_,i)=>{let d=new Date(s);d.setDate(s.getDate()+i);return d});
+ let all=[];days.forEach((d,i)=>{let date=iso(d);data.classes.filter(x=>x.day===i+1&&i<5).forEach(x=>all.push({...x,title:x.name,type:'class'}));if(i===6)data.classes.filter(x=>x.day===0).forEach(x=>all.push({...x,title:x.name,type:'class'}));data.activities.filter(x=>x.day===d.getDay()).forEach(x=>all.push({...x,title:x.name,type:'activity'}));data.sessions.filter(x=>x.date===date).forEach(x=>all.push({...x,title:subName(x.subjectId)+' · '+x.topic,type:'study'}))});
+ return header('Horario semanal','Clases, estudio y actividades',btn('+ Clase','openForm("class")',true)+btn('+ Sesión','openForm("session")'))+
+ `<div class="card calendar"><div class="calgrid"><div class="calhead">Hora</div>${days.map(d=>`<div class="calhead">${d.toLocaleDateString('es-ES',{weekday:'short'})}</div>`).join('')}${Array.from({length:16},(_,j)=>{let h=j+7;return `<div class="time">${String(h).padStart(2,'0')}:00</div>`+days.map(d=>`<div class="cell">${all.filter(x=>x.day===d.getDay()&&x.date?x.date===iso(d):true).filter(x=>+x.start?.split(':')[0]===h).map(x=>`<div class="event ${x.type}" style="border-left:3px solid ${x.color||'var(--primary)'}">${esc(x.start)} ${esc(x.title)}</div>`).join('')}</div>`).join('')}).join('')}</div></div>`
+}
+function subjectsPage(){return header('Asignaturas','Organiza tus materias',btn('+ Nueva asignatura','openForm("subject")',true))+`<div class="grid three">${data.subjects.length?data.subjects.map(s=>{let t=data.tasks.filter(x=>x.subjectId===s.id&&x.status!=='done').length;let mins=data.stats.studyLog.filter(x=>x.subjectId===s.id).reduce((a,x)=>a+x.minutes,0);return `<div class="card"><div style="display:flex;justify-content:space-between"><h2>${esc(s.name)}</h2><span class="dot" style="background:${s.color}"></span></div><div class="small muted">${esc(s.teacher||'')} ${s.room?'· Aula '+esc(s.room):''}</div><p class="small">${esc(s.description||'')}</p><div class="item"><div class="grow">Estudio</div><b>${Math.floor(mins/60)}h ${mins%60}m</b></div><div class="item"><div class="grow">Tareas pendientes</div><b>${t}</b></div><div class="actions-mini" style="margin-top:10px">${`<button class="iconbtn" onclick="openForm('subject','${s.id}')">✏️</button><button class="iconbtn" onclick="del('subjects','${s.id}')">🗑️</button>`}</div></div>`}).join(''):`<div class="card empty">Aún no tienes asignaturas. Añade la primera.</div>`}</div>`}
+function tasksPage(){
+ let arr=data.tasks.filter(x=>taskFilter==='all'||(taskFilter==='done'?x.status==='done':taskFilter==='overdue'?x.status!=='done'&&x.due<today():taskFilter==='today'?x.due===today():x.priority===taskFilter));
+ arr.sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
+ return header('Tareas','Trabajos, deberes y entregas',btn('+ Nueva tarea','openForm("task")',true))+`<div class="toolbar"><div class="pillbar">${['all','today','overdue','urgent','high','medium','low','done'].map(f=>`<button class="pill ${taskFilter===f?'active':''}" onclick="taskFilter='${f}';render()">${({all:'Todas',today:'Hoy',overdue:'Atrasadas',urgent:'Urgentes',high:'Alta',medium:'Media',low:'Baja',done:'Completadas'})[f]}</button>`).join('')}</div></div><div class="card">${arr.length?`<div class="list">${arr.map(t=>`<div class="item"><input class="check" type="checkbox" ${t.status==='done'?'checked':''} onchange="toggleTask('${t.id}')"><div class="grow"><b style="${t.status==='done'?'text-decoration:line-through':''}">${esc(t.title)}</b><div class="small muted">${esc(subName(t.subjectId))} · ${t.due?fmtDate(t.due):'sin fecha'} ${t.dueTime||''} · ${t.estimated||0} min</div></div><span class="badge">${t.priority}</span><div class="actions-mini"><button class="iconbtn" onclick="openForm('task','${t.id}')">✏️</button><button class="iconbtn" onclick="del('tasks','${t.id}')">🗑️</button></div></div>`).join('')}</div>`:`<div class="empty">No hay tareas en esta vista.</div>`}</div>`
+}
+function examsPage(){let arr=[...data.exams].sort((a,b)=>a.date.localeCompare(b.date));return header('Exámenes','Controla tus fechas y temarios',btn('+ Nuevo examen','openForm("exam")',true))+`<div class="grid two">${arr.length?arr.map(e=>`<div class="card"><div style="display:flex;justify-content:space-between"><h2>${esc(subName(e.subjectId))}</h2><span class="badge">${daysUntil(e.date)<0?'Finalizado':daysUntil(e.date)===0?'Hoy':daysUntil(e.date)===1?'Mañana':'Faltan '+daysUntil(e.date)+' días'}</span></div><b>${esc(e.title)}</b><p class="small muted">${fmtDate(e.date)} ${e.time||''} ${e.room?'· '+esc(e.room):''}</p><p>${esc(e.syllabus||'Sin temario indicado.')}</p><div class="actions-mini"><button class="iconbtn" onclick="openForm('exam','${e.id}')">✏️</button><button class="iconbtn" onclick="del('exams','${e.id}')">🗑️</button></div></div>`).join(''):`<div class="card empty">No hay exámenes registrados.</div>`}</div>`}
+function studyPage(){let arr=[...data.sessions].sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));return header('Estudio','Planifica y registra tus sesiones',btn('▶ Pomodoro','openPomodoro()',true)+btn('+ Nueva sesión','openForm("session")',false)+btn('✨ Planificar semana','planWeek()'))+`<div class="grid two"><div class="card">${arr.length?`<div class="list">${arr.map(s=>`<div class="item"><div class="dot" style="background:${subject(s.subjectId)?.color||'var(--primary)'}"></div><div class="grow"><b>${esc(s.topic)}</b><div class="small muted">${esc(subName(s.subjectId))} · ${fmtDate(s.date)} · ${s.start}-${s.end}</div></div><span class="badge">${s.type}</span><div class="actions-mini"><button class="iconbtn" onclick="openForm('session','${s.id}')">✏️</button><button class="iconbtn" onclick="del('sessions','${s.id}')">🗑️</button></div></div>`).join('')}</div>`:`<div class="empty">Aún no hay sesiones.</div>`}</div>${card('Temporizador','<div id="timerBox" class="empty">Pulsa Pomodoro para empezar.</div>')}</div>`}
+function activitiesPage(){return header('Extraescolares','Actividades recurrentes que el planificador respetará',btn('+ Nueva actividad','openForm("activity")',true))+`<div class="grid three">${data.activities.length?data.activities.map(a=>`<div class="card"><h2>${esc(a.name)}</h2><div class="badge">${dayName(a.day)} · ${a.start}-${a.end}</div><p class="small muted">${esc(a.place||'')} ${a.description?'· '+esc(a.description):''}</p><div class="actions-mini"><button class="iconbtn" onclick="openForm('activity','${a.id}')">✏️</button><button class="iconbtn" onclick="del('activities','${a.id}')">🗑️</button></div></div>`).join(''):`<div class="card empty">No hay extraescolares.</div>`}</div>`}
+function dayName(d){return ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d]}
+function goalsPage(){return header('Objetivos','Pequeños objetivos, progreso real',btn('+ Nuevo objetivo','openForm("goal")',true))+`<div class="grid two">${data.goals.length?data.goals.map(g=>`<div class="card"><label class="item"><input class="check" type="checkbox" ${g.done?'checked':''} onchange="toggleGoal('${g.id}')"><div class="grow"><b>${esc(g.title)}</b><div class="small muted">${g.period||'semanal'}</div></div></label>${g.target?`<div class="progress" style="margin-top:12px"><i style="width:${Math.min(100,g.progress/g.target*100)}%"></i></div><div class="small muted" style="margin-top:5px">${g.progress||0}/${g.target}</div>`:''}<div class="actions-mini" style="margin-top:10px"><button class="iconbtn" onclick="openForm('goal','${g.id}')">✏️</button><button class="iconbtn" onclick="del('goals','${g.id}')">🗑️</button></div></div>`).join(''):`<div class="card empty">Crea tu primer objetivo.</div>`}</div>`}
+function statsPage(){let total=data.stats.studyLog.reduce((a,x)=>a+x.minutes,0),done=data.tasks.filter(x=>x.status==='done').length;let by=data.subjects.map(s=>({s,m:data.stats.studyLog.filter(x=>x.subjectId===s.id).reduce((a,x)=>a+x.minutes,0)})).sort((a,b)=>b.m-a.m);return header('Estadísticas','Una visión de tu progreso')+`<div class="grid stats">${card('Tiempo total',`<div class="stat"><div class="value">${Math.floor(total/60)}h ${total%60}m</div></div>`)}${card('Tareas completadas',`<div class="stat"><div class="value">${done}</div></div>`)}${card('Sesiones',`<div class="stat"><div class="value">${data.sessions.length}</div></div>`)}${card('Exámenes',`<div class="stat"><div class="value">${data.exams.length}</div></div>`)}</div><div class="card"><h2>📚 Tiempo por asignatura</h2><div class="list">${by.length?by.map(x=>`<div class="item"><span class="dot" style="background:${x.s.color}"></span><div class="grow"><b>${esc(x.s.name)}</b><div class="progress"><i style="width:${total?x.m/total*100:0}%"></i></div></div><b>${Math.floor(x.m/60)}h ${x.m%60}m</b></div>`).join(''):`<div class="empty">Registra sesiones para ver estadísticas.</div>`}</div></div>`}
+function settingsPage(){return header('Ajustes','Personaliza Planora')+`<div class="grid two"><div class="card"><h2>Preferencias</h2><div class="formgrid"><div class="field full"><label>Tu nombre</label><input id="setName" value="${esc(data.settings.name)}"></div><div class="field"><label>Objetivo semanal (horas)</label><input id="setGoal" type="number" min="1" max="100" value="${data.settings.weeklyGoal}"></div><div class="field"><label>Pomodoro (minutos)</label><input id="setPom" type="number" min="5" max="90" value="${data.settings.pomodoro}"></div></div><div class="actions" style="margin-top:14px">${btn('Guardar preferencias','saveSettings()',true)}${btn(data.settings.dark?'☀️ Modo claro':'🌙 Modo oscuro','toggleDark()')}</div></div><div class="card"><h2>Datos</h2><div class="list">${btn('⬇ Exportar JSON','exportData()')}${btn('⬆ Importar JSON','document.getElementById("importFile").click()')}${btn('🧪 Cargar datos de ejemplo','seedDemo()')}${btn('🗑️ Borrar todos los datos','clearData()')}</div><input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)"><p class="small muted">Tus datos se guardan localmente en este navegador mediante localStorage.</p></div></div>`}
+function applyTheme(){document.body.classList.toggle('dark',!!data.settings.dark)}
+function saveSettings(){data.settings.name=document.getElementById('setName').value.trim();data.settings.weeklyGoal=+document.getElementById('setGoal').value||10;data.settings.pomodoro=+document.getElementById('setPom').value||25;save();showToast('Preferencias guardadas');render()}
+function toggleDark(){data.settings.dark=!data.settings.dark;save();render()}
+function clearData(){if(confirm('¿Seguro que quieres borrar todos los datos?')){localStorage.removeItem(KEY);data=load();render();showToast('Datos borrados')}}
+function exportData(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='studyflow-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{if(!confirm('Esto reemplazará los datos actuales. ¿Continuar?'))return;data={...structuredClone(defaults),...JSON.parse(r.result)};save();render();showToast('Datos importados')}catch(err){alert('Archivo JSON no válido')}};r.readAsText(f)}
+function seedDemo(){if(data.subjects.length||data.tasks.length||data.exams.length){if(!confirm('Ya tienes datos. ¿Añadir ejemplos igualmente?'))return}let s1={id:uid(),name:'Matemáticas',teacher:'',color:'#5b5ce2',room:'',description:'',goal:'',weekly:4};let s2={id:uid(),name:'Historia',teacher:'',color:'#d98a3b',room:'',description:'',goal:'',weekly:3};data.subjects.push(s1,s2);data.tasks.push({id:uid(),title:'Ejercicios de matemáticas',description:'',subjectId:s1.id,due:today(),dueTime:'18:00',priority:'high',estimated:45,status:'todo'},{id:uid(),title:'Trabajo de Historia',description:'',subjectId:s2.id,due:iso(new Date(Date.now()+86400000*3)),dueTime:'20:00',priority:'medium',estimated:90,status:'todo'});data.exams.push({id:uid(),subjectId:s1.id,title:'Tema 3',date:iso(new Date(Date.now()+86400000*7)),time:'10:00',room:'',syllabus:'Álgebra y ecuaciones',difficulty:'media',notes:''});save();render();showToast('Datos de ejemplo añadidos')}
+function toggleTask(id){let t=data.tasks.find(x=>x.id===id);if(t){t.status=t.status==='done'?'todo':'done';save();render()}}
+function toggleGoal(id){let g=data.goals.find(x=>x.id===id);if(g){g.done=!g.done;save();render()}}
+function del(col,id){if(confirm('¿Eliminar este elemento?')){data[col]=data[col].filter(x=>x.id!==id);save();render()}}
+function quickAdd(type='task'){openForm(type)}
+function openModal(title,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=body;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function subjectOptions(selected=''){return `<option value="">Selecciona...</option>`+data.subjects.map(s=>`<option value="${s.id}" ${s.id===selected?'selected':''}>${esc(s.name)}</option>`).join('')}
+function openForm(type,id){
+ let obj=id?({subject:data.subjects,task:data.tasks,exam:data.exams,session:data.sessions,activity:data.activities,goal:data.goals,event:data.events,class:data.classes}[type]||[]).find(x=>x.id===id):{};
+ const title=(id?'Editar ':'Nueva ')+({subject:'asignatura',task:'tarea',exam:'examen',session:'sesión de estudio',activity:'extraescolar',goal:'objetivo',event:'evento',class:'clase'}[type]);
+ let body='';
+ if(type==='subject')body=formSubject(obj);
+ if(type==='task')body=formTask(obj);
+ if(type==='exam')body=formExam(obj);
+ if(type==='session')body=formSession(obj);
+ if(type==='activity')body=formActivity(obj);
+ if(type==='goal')body=formGoal(obj);
+ if(type==='event')body=formEvent(obj);
+ if(type==='class')body=formClass(obj);
+ openModal(title,body);
+}
+function formWrap(fields,savefn){return `<div class="formgrid">${fields}</div><div class="form-actions"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="${savefn}">Guardar</button></div>`}
+function field(label,input,full=false){return `<div class="field ${full?'full':''}"><label>${label}</label>${input}</div>`}
+function formSubject(o={}){return formWrap(field('Nombre',`<input id="f_name" value="${esc(o.name||'')}" required>`,true)+field('Profesor',`<input id="f_teacher" value="${esc(o.teacher||'')}">`)+field('Aula',`<input id="f_room" value="${esc(o.room||'')}">`)+field('Color',`<input id="f_color" type="color" value="${o.color||'#5b5ce2'}">`)+field('Horas semanales',`<input id="f_weekly" type="number" min="0" value="${o.weekly||2}">`)+field('Descripción',`<textarea id="f_desc">${esc(o.description||'')}</textarea>`,true),`saveForm('subject','${o.id||''}')`)}
+function formTask(o={}){return formWrap(field('Título',`<input id="f_title" value="${esc(o.title||'')}" required>`,true)+field('Asignatura',`<select id="f_subject">${subjectOptions(o.subjectId)}</select>`)+field('Fecha de entrega',`<input id="f_due" type="date" value="${o.due||today()}">`)+field('Hora límite',`<input id="f_time" type="time" value="${o.dueTime||''}">`)+field('Prioridad',`<select id="f_priority">${['low','medium','high','urgent'].map(x=>`<option ${x===(o.priority||'medium')?'selected':''}>${x}</option>`).join('')}</select>`)+field('Tiempo estimado (min)',`<input id="f_est" type="number" min="0" value="${o.estimated||30}">`)+field('Descripción',`<textarea id="f_desc">${esc(o.description||'')}</textarea>`,true),`saveForm('task','${o.id||''}')`)}
+function formExam(o={}){return formWrap(field('Asignatura',`<select id="f_subject">${subjectOptions(o.subjectId)}</select>`)+field('Nombre / tema',`<input id="f_title" value="${esc(o.title||'')}">`)+field('Fecha',`<input id="f_date" type="date" value="${o.date||today()}">`)+field('Hora',`<input id="f_time" type="time" value="${o.time||''}">`)+field('Aula',`<input id="f_room" value="${esc(o.room||'')}">`)+field('Dificultad',`<select id="f_diff">${['baja','media','alta'].map(x=>`<option ${x===(o.difficulty||'media')?'selected':''}>${x}</option>`).join('')}</select>`)+field('Temario',`<textarea id="f_syllabus">${esc(o.syllabus||'')}</textarea>`,true)+field('Notas',`<textarea id="f_notes">${esc(o.notes||'')}</textarea>`,true),`saveForm('exam','${o.id||''}')`)}
+function formSession(o={}){return formWrap(field('Asignatura',`<select id="f_subject">${subjectOptions(o.subjectId)}</select>`)+field('Tema',`<input id="f_topic" value="${esc(o.topic||'')}">`)+field('Fecha',`<input id="f_date" type="date" value="${o.date||today()}">`)+field('Inicio',`<input id="f_start" type="time" value="${o.start||'17:00'}">`)+field('Fin',`<input id="f_end" type="time" value="${o.end||'17:45'}">`)+field('Tipo',`<select id="f_type">${['teoría','ejercicios','repaso','examen','trabajo','lectura','repaso rápido'].map(x=>`<option ${x===(o.type||'ejercicios')?'selected':''}>${x}</option>`).join('')}</select>`)+field('Prioridad',`<select id="f_priority">${['low','medium','high','urgent'].map(x=>`<option ${x===(o.priority||'medium')?'selected':''}>${x}</option>`).join('')}</select>`),`saveForm('session','${o.id||''}')`)}
+function formActivity(o={}){return formWrap(field('Nombre',`<input id="f_name" value="${esc(o.name||'')}">`,true)+field('Día',`<select id="f_day">${[1,2,3,4,5,6,0].map(x=>`<option value="${x}" ${+o.day===x?'selected':''}>${dayName(x)}</option>`).join('')}</select>`)+field('Inicio',`<input id="f_start" type="time" value="${o.start||'17:00'}">`)+field('Fin',`<input id="f_end" type="time" value="${o.end||'18:30'}">`)+field('Lugar',`<input id="f_place" value="${esc(o.place||'')}">`)+field('Color',`<input id="f_color" type="color" value="${o.color||'#d98a3b'}">`)+field('Descripción',`<textarea id="f_desc">${esc(o.description||'')}</textarea>`,true),`saveForm('activity','${o.id||''}')`)}
+function formGoal(o={}){return formWrap(field('Objetivo',`<input id="f_title" value="${esc(o.title||'')}">`,true)+field('Periodo',`<select id="f_period"><option ${o.period==='diario'?'selected':''}>diario</option><option ${o.period==='semanal'||!o.period?'selected':''}>semanal</option><option ${o.period==='asignatura'?'selected':''}>asignatura</option></select>`)+field('Meta numérica (opcional)',`<input id="f_target" type="number" min="0" value="${o.target||0}">`)+field('Progreso',`<input id="f_progress" type="number" min="0" value="${o.progress||0}">`),`saveForm('goal','${o.id||''}')`)}
+function formEvent(o={}){return formWrap(field('Título',`<input id="f_title" value="${esc(o.title||'')}">`,true)+field('Fecha',`<input id="f_date" type="date" value="${o.date||today()}">`)+field('Inicio',`<input id="f_start" type="time" value="${o.start||'16:00'}">`)+field('Fin',`<input id="f_end" type="time" value="${o.end||'17:00'}">`)+field('Tipo',`<select id="f_type"><option>personal</option><option>bloqueado</option></select>`)+field('Color',`<input id="f_color" type="color" value="${o.color||'#5b5ce2'}">`),`saveForm('event','${o.id||''}')`)}
+function formClass(o={}){return formWrap(field('Nombre',`<input id="f_name" value="${esc(o.name||'')}">`,true)+field('Día',`<select id="f_day">${[1,2,3,4,5].map(x=>`<option value="${x}" ${+o.day===x?'selected':''}>${dayName(x)}</option>`).join('')}</select>`)+field('Inicio',`<input id="f_start" type="time" value="${o.start||'08:00'}">`)+field('Fin',`<input id="f_end" type="time" value="${o.end||'09:00'}">`)+field('Aula',`<input id="f_room" value="${esc(o.room||'')}">`)+field('Color',`<input id="f_color" type="color" value="${o.color||'#278a62'}">`),`saveForm('class','${o.id||''}')`)}
+function saveForm(type,id){
+ const map={
+ subject:{name:'f_name',teacher:'f_teacher',room:'f_room',color:'f_color',weekly:'f_weekly',description:'f_desc'},
+ task:{title:'f_title',subjectId:'f_subject',due:'f_due',dueTime:'f_time',priority:'f_priority',estimated:'f_est',description:'f_desc'},
+ exam:{subjectId:'f_subject',title:'f_title',date:'f_date',time:'f_time',room:'f_room',difficulty:'f_diff',syllabus:'f_syllabus',notes:'f_notes'},
+ session:{subjectId:'f_subject',topic:'f_topic',date:'f_date',start:'f_start',end:'f_end',type:'f_type',priority:'f_priority'},
+ activity:{name:'f_name',day:'f_day',start:'f_start',end:'f_end',place:'f_place',color:'f_color',description:'f_desc'},
+ goal:{title:'f_title',period:'f_period',target:'f_target',progress:'f_progress'},
+ event:{title:'f_title',date:'f_date',start:'f_start',end:'f_end',type:'f_type',color:'f_color'},
+ class:{name:'f_name',day:'f_day',start:'f_start',end:'f_end',room:'f_room',color:'f_color'}
+ }[type];
+ let o={};Object.entries(map).forEach(([k,id2])=>{let el=document.getElementById(id2);o[k]=el?.type==='number'?+el.value:el?.value||''});o.id=id||uid();
+ if(type==='task'&&!o.title.trim())return alert('Escribe un título.');
+ if(type==='subject'&&!o.name.trim())return alert('Escribe un nombre.');
+ let arr={subject:'subjects',task:'tasks',exam:'exams',session:'sessions',activity:'activities',goal:'goals',event:'events',class:'classes'}[type];
+ if(type==='task'&&!id)o.status='todo';if(type==='goal'&&!id)o.done=false;
+ let idx=data[arr].findIndex(x=>x.id===o.id);if(idx>=0)data[arr][idx]={...data[arr][idx],...o};else data[arr].push(o);
+ save();closeModal();render();showToast('Guardado correctamente')
+}
+let timer=null,timerLeft=0,timerSubject='';
+function openPomodoro(){timerLeft=(data.settings.pomodoro||25)*60;openModal('Pomodoro',`<div id="pomBody" class="empty"><div style="font-size:48px;font-weight:800" id="timerDisplay"></div><select id="pomSubject">${subjectOptions()}</select><div class="actions" style="justify-content:center;margin-top:15px"><button class="btn primary" onclick="startTimer()">▶ Empezar</button><button class="btn" onclick="stopTimer()">⏹ Parar</button></div></div>`);updateTimer()}
+function startTimer(){clearInterval(timer);timer=setInterval(()=>{timerLeft--;updateTimer();if(timerLeft<=0){clearInterval(timer);let sid=document.getElementById('pomSubject')?.value;data.stats.studyLog.push({date:today(),minutes:data.settings.pomodoro,subjectId:sid||'',source:'pomodoro'});save();showToast('🎉 ¡Pomodoro terminado!');updateTimer()}},1000)}
+function stopTimer(){clearInterval(timer)}
+function updateTimer(){let e=document.getElementById('timerDisplay');if(e)e.textContent=String(Math.floor(timerLeft/60)).padStart(2,'0')+':'+String(timerLeft%60).padStart(2,'0')}
+function planDay(){let t=today(),pending=data.tasks.filter(x=>x.status!=='done').sort((a,b)=>priorityScore(b)-priorityScore(a));let slots=data.availability[new Date().getDay()]||[];let proposals=[];for(const task of pending.slice(0,5)){let slot=slots.find(x=>minutesBetween(x[0],x[1])>=Math.min(task.estimated||30,60));if(!slot)continue;let start=slot[0],dur=Math.min(task.estimated||30,60),endMin=(+start.slice(0,2))*60+(+start.slice(3))+dur;let end=String(Math.floor(endMin/60)).padStart(2,'0')+':'+String(endMin%60).padStart(2,'0');proposals.push({task,start,end});slots=slots.filter(x=>x[0]!==slot[0]);}
+ openModal('✨ Propuesta para hoy',proposals.length?`<p class="muted">He priorizado fechas límite y urgencia sin ocupar todo tu tiempo disponible.</p><div class="list">${proposals.map(p=>`<div class="item"><div class="grow"><b>${esc(p.task.title)}</b><div class="small muted">${esc(subName(p.task.subjectId))}</div></div><span class="badge">${p.start}–${p.end}</span></div>`).join('')}</div><div class="form-actions"><button class="btn" onclick="closeModal()">Revisar</button><button class="btn primary" onclick="acceptPlan(${JSON.stringify(proposals).replaceAll('"','&quot;')})">Añadir sesiones</button></div>`:`<div class="empty">No he encontrado huecos suficientes. Revisa tu disponibilidad o añade más horas.`)}
+function acceptPlan(ps){try{ps.forEach(p=>data.sessions.push({id:uid(),subjectId:p.task.subjectId,topic:'Tarea: '+p.task.title,date:today(),start:p.start,end:p.end,type:'trabajo',priority:p.task.priority}));save();closeModal();go('study');showToast('Plan añadido') }catch(e){alert('No se pudo añadir el plan.')} }
+function planWeek(){let count=0;let start=weekStart();for(let i=0;i<7;i++){let d=new Date(start);d.setDate(start.getDate()+i);let date=iso(d),slots=data.availability[d.getDay()]||[];let pending=data.tasks.filter(x=>x.status!=='done'&&!data.sessions.some(s=>s.date===date&&s.topic.includes(x.title))).sort((a,b)=>priorityScore(b)-priorityScore(a));for(const task of pending.slice(0,2)){if(!slots.length)break;let sl=slots.shift(),dur=Math.min(task.estimated||45,60),m=+sl[0].slice(0,2)*60+ +sl[0].slice(3)+dur,end=String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');data.sessions.push({id:uid(),subjectId:task.subjectId,topic:'Tarea: '+task.title,date,start:sl[0],end,type:'trabajo',priority:task.priority});count++}}save();render();showToast(count+' sesiones propuestas para la semana')}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+render();
+
+// PWA: registrar el Service Worker para funcionamiento offline.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+
+// Botón de instalación cuando el navegador lo permite (Android/Chrome, etc.).
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const actions = document.querySelector('.topbar .actions');
+  if (actions && !document.getElementById('installPwaBtn')) {
+    const b = document.createElement('button');
+    b.id = 'installPwaBtn'; b.className = 'btn primary'; b.textContent = '📲 Instalar Planora';
+    b.onclick = async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null; b.remove();
+    };
+    actions.prepend(b);
+  }
+});
+
+if(!data.settings.name&&!data.subjects.length)setTimeout(()=>showWelcome(),250);
+function showWelcome(){openModal('¡Vamos a organizar tu semana! 📚',`<p class="muted">Puedes configurar lo básico ahora o hacerlo más tarde desde Ajustes.</p>${formWrap(field('¿Cómo quieres que te llamemos?',`<input id="w_name" placeholder="Tu nombre">`,true)+field('Objetivo semanal (horas)',`<input id="w_goal" type="number" min="1" value="10">`)+field('Primera asignatura (opcional)',`<input id="w_subject" placeholder="Ej. Matemáticas">`,true),`finishWelcome()`)}`)}
+function finishWelcome(){let n=document.getElementById('w_name').value.trim(),g=+document.getElementById('w_goal').value||10,s=document.getElementById('w_subject').value.trim();data.settings.name=n;data.settings.weeklyGoal=g;if(s)data.subjects.push({id:uid(),name:s,color:'#5b5ce2',weekly:2});save();closeModal();render()}
+</script>
+</body>
+</html>
